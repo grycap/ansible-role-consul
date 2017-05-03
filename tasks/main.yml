@@ -1,6 +1,3 @@
-- name: Include "{{ansible_os_family}}" chronos recipe
-  include: "{{ansible_os_family}}.yml"
-
 - name: Run chronos container
   docker_container:
     name: consul
