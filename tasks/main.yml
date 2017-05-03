@@ -1,0 +1,15 @@
+- name: Include "{{ansible_os_family}}" chronos recipe
+  include: "{{ansible_os_family}}.yml"
+
+- name: Run chronos container
+  docker_container:
+    name: consul
+    image: progrium/consul
+    state: started
+    detach: True
+    restart_policy: always
+    network_mode: bridge
+    published_ports:
+     - 8500:8500
+    hostname: "{{ ansible_hostname }}"
+    command: -server -bootstrap
