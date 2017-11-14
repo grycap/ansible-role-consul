@@ -13,7 +13,7 @@
 - name: Run chronos container
   docker_container:
     name: consul
-    image: consul
+    image: "{{ consul_container_image }}"
     state: started
     detach: True
     restart_policy: always
