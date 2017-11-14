@@ -1,0 +1,2 @@
+---
+consul_container_command: "agent -server -dev -ui -client 0.0.0.0"
