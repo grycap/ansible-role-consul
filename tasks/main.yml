@@ -13,7 +13,7 @@
 - name: Run chronos container
   docker_container:
     name: consul
-    image: progrium/consul
+    image: "{{ consul_container_image }}"
     state: started
     detach: True
     restart_policy: always
@@ -21,4 +21,4 @@
     published_ports:
      - 8500:8500
     hostname: "{{ ansible_hostname }}"
-    command: -server -bootstrap
+    command: "{{ consul_container_command }}"
