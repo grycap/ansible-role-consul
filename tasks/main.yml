@@ -1,9 +1,17 @@
 ---
-- name: Install pip if needed
+- name: Install pip if needed on Debian
   apt:
     pkg: python-pip
     state: present
     update_cache: yes
+  when: "ansible_os_family == 'Debian'"
+
+- name: Install pip if needed on Redhat
+  yum:
+    pkg: python-pip
+    state: present
+    update_cache: yes
+  when: "ansible_os_family == 'RedHat'"
 
 - name: Install docker container dependencies
   pip:
