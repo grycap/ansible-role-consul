@@ -1,3 +1,5 @@
 ---
 consul_container_image: "consul"
 consul_container_command: "agent -server -dev -ui -client 0.0.0.0"
+consul_outport: 8500
+consul_interface_ip: 0.0.0.0

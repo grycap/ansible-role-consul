@@ -13,7 +13,7 @@
     update_cache: yes
   when: "ansible_os_family == 'RedHat'"
 
-- name: Run chronos container
+- name: Run Consul container
   docker_container:
     name: consul
     image: "{{ consul_container_image }}"
@@ -22,6 +22,6 @@
     restart_policy: always
     network_mode: bridge
     published_ports:
-     - 8500:8500
+     - "{{ consul_interface_ip }}:{{ consul_outport }}:8500"
     hostname: "{{ ansible_hostname }}"
     command: "{{ consul_container_command }}"
