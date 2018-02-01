@@ -13,11 +13,6 @@
     update_cache: yes
   when: "ansible_os_family == 'RedHat'"
 
-- name: Install docker container dependencies
-  pip:
-    executable: /usr/bin/pip
-    name: docker-py
-
 - name: Run Consul container
   docker_container:
     name: consul
