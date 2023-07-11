@@ -17,6 +17,14 @@
 - name: Copy TLS files
   include_tasks: tls_copy.yml
 
+- name: Set NOMAD_CACERT environment variable
+  lineinfile:
+    dest: /etc/environment
+    line: "{{ item }}"
+  loop:
+    - "CONSUL_CACERT={{ consul_config_dir }}/certs/consul-agent-ca.pem"
+    - "CONSUL_HTTP_ADDR=https://127.0.0.1:8501"
+
 - name: Get/Gen Consul encryption key
   include_tasks: encrypt_key.yml
 

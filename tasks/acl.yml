@@ -13,6 +13,9 @@
     command: consul acl bootstrap
     args:
       creates: "{{ consul_config_dir }}/policies/acl_bootstrap"
+    environment:
+      CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+      CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
     run_once: true
     register: acl_bootstrap
     until: acl_bootstrap is success
