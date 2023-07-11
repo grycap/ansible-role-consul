@@ -10,6 +10,8 @@
     ignore_errors: true
     environment: 
       CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
+      CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+      CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
 
   - name: Create Consul {{ item.name }} Token
     shell: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}" > "{{ consul_config_dir }}/policies/{{ item.name }}.token"
@@ -17,6 +19,8 @@
       creates: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
     environment: 
       CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
+      CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+      CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
 
   when: ansible_connection == 'local'
 

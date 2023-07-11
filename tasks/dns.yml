@@ -20,4 +20,6 @@
 - name: Rewrite default token
   command: consul acl set-agent-token default {{ consul_tokens['dns-request-policy'] }}
   environment: 
+    CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+    CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
     CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
