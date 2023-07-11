@@ -1,0 +1,18 @@
+---
+- name: Generate CA 
+  block:
+
+  - name: Create Consul TLS CA
+    command: consul tls ca create
+    args:
+      chdir: "{{ consul_config_dir }}/certs"
+      creates: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+
+  - name: Create Consul TLS Server Cert
+    command: consul tls cert create -server -dc {{ consul_dc_name }} -domain {{ consul_domain }} 
+    args:
+      chdir: "{{ consul_config_dir }}/certs"
+      creates: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ item }}.pem"
+    loop: "{{ range(0, consul_bootstrap_expect | int)|list }}"
+
+  delegate_to: localhost

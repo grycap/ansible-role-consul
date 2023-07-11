@@ -1,0 +1,22 @@
+---
+- name: Wait Certs to be generated
+  wait_for:
+    path: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ consul_bootstrap_expect | int - 1 }}.pem"
+  delegate_to: localhost
+
+- name: Copy CA to the nodes
+  copy:
+    src: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+    dest: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+
+- name: Copy Certs to the nodes
+  copy:
+    src: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{item}}.pem"
+    dest: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{item}}.pem"
+  loop: "{{ range(0, consul_bootstrap_expect | int - 1)|list }}"
+
+- name: Copy Keys to the nodes
+  copy:
+    src: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{item}}-key.pem"
+    dest: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{item}}-key.pem"
+  loop: "{{ range(0, consul_bootstrap_expect | int - 1)|list }}"

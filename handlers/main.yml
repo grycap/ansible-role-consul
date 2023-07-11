@@ -1,0 +1,17 @@
+---
+
+- name: restart consul
+  service:
+    name: "{{ consul_service_name }}"
+    state: restarted
+
+- name: reload consul
+  service:
+    name: "{{ consul_service_name }}"
+    state: reloaded
+
+- name: restart systemd-resolved
+  service:
+    name: systemd-resolved
+    state: restarted
+  delegate_to: localhost

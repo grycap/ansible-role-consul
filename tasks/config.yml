@@ -1,0 +1,30 @@
+---
+
+- name: Create General Consul configuration file
+  template:
+    src: consul.hcl.j2
+    dest: "{{ consul_config_dir }}/consul.hcl"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0644
+  notify: restart consul
+
+- name: Create Server Consul configuration file
+  template:
+    src: server.hcl.j2
+    dest: "{{ consul_config_dir }}/server.hcl"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0644
+    force: false
+  notify: restart consul
+  when: consul_server
+
+- name: Set Consul configuration directory permissions
+  file:
+    path: "{{ consul_config_dir }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+    state: directory
+    recurse: yes

@@ -1,0 +1,50 @@
+---
+
+- name: Create Consul group
+  group:
+    name: "{{ consul_group }}"
+    system: yes
+    state: present
+
+- name: Create Consul user
+  user:
+    name: "{{ consul_user }}"
+    shell: /bin/false
+    createhome: no
+    group: "{{ consul_group }}"
+    system: yes
+    state: present
+
+- name: Ensure unzip is installed (required by unarchive module)
+  package:
+    name: unzip
+    state: present
+
+- name: Download Consul
+  get_url:
+    url: "{{ consul_url }}"
+    dest: "{{ consul_download_dir }}/consul.zip"
+
+- name: Unarchive consul zip
+  unarchive:
+    src: "{{ consul_download_dir }}/consul.zip"
+    creates: "{{ consul_install_dir }}/consul"
+    dest: "{{ consul_install_dir }}"
+    remote_src: yes
+
+- name: Create Consul configuration directory
+  file:
+    path: "{{ consul_config_dir }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+    state: directory
+
+- name: Create consul.service configuration
+  template:
+    src: consul.service.j2
+    dest: /etc/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload consul

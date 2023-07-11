@@ -1,0 +1,56 @@
+- block:
+
+  - name: Create Consul Policies directory
+    file:
+      path: "{{ consul_config_dir }}/policies"
+      owner: "{{ consul_user }}"
+      group: "{{ consul_group }}"
+      mode: 0755
+      state: directory
+
+  - name: Wait for Consul to start
+    wait_for:
+      port: 8500
+
+  # Repeat until the error "500 (No cluster leader)" is gone
+  - name: Gen ACL Bootstrap
+    command: consul acl bootstrap
+    args:
+      creates: "{{ consul_config_dir }}/policies/acl_bootstrap"
+    run_once: true
+    register: acl_bootstrap
+    until: acl_bootstrap is success
+    retries: 24
+    delay: 5
+
+  - name: Create Consul Bootstrap Token file
+    copy:
+      content: "{{ acl_bootstrap.stdout }}"
+      dest: "{{ consul_config_dir }}/policies/acl_bootstrap"
+      force: false
+
+  - name: Get ACL Bootstrap Token
+    set_fact:
+      CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1')| first }}"
+    vars:
+      regexp: 'SecretID:\s+(.*)'
+
+  - name: consul_secret_id
+    debug:
+      msg: "{{ CONSUL_HTTP_TOKEN }}"
+
+  when: ansible_connection == 'local'
+  delegate_to: localhost
+
+
+- name: Wait Bootstrap to be generated
+  wait_for:
+    path: "{{ consul_config_dir }}/policies/acl_bootstrap"
+  delegate_to: localhost
+
+- name: Get Bootstrap Token
+  set_fact:
+    CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
+  vars:
+    regexp: 'SecretID:\s+(.*)'
+  delegate_to: localhost

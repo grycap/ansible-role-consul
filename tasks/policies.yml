@@ -1,0 +1,39 @@
+- block:
+
+  - name: Create {{ item.name }} policy file
+    copy:
+      content: "{{ item.rules }}"
+      dest: "{{ consul_config_dir }}/policies/{{ item.name }}.hcl"
+
+  - name: Create Consul Policy {{ item.name }}
+    command: consul acl policy create -name "{{ item.name }}" -description "{{ item.description | default(item.name) }}" -rules @{{ consul_config_dir }}/policies/{{ item.name }}.hcl
+    ignore_errors: true
+    environment: 
+      CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
+
+  - name: Create Consul {{ item.name }} Token
+    shell: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}" > "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+    args:
+      creates: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+    environment: 
+      CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
+
+  when: ansible_connection == 'local'
+  delegate_to: localhost
+
+
+- name: Wait {{ item.name }} token to be generated
+  wait_for:
+    path: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+  delegate_to: localhost
+
+- name: Get ACL {{ item.name }} Token
+  set_fact:
+    token: "{{ lookup('file', consul_config_dir + '/policies/{{ item.name }}.token')| regex_search(regexp,'\\1') | first }}"
+  vars:
+    regexp: 'SecretID:\s+(.*)'
+  delegate_to: localhost
+
+- name: Add Token to consul_tokens
+  set_fact:
+    consul_tokens: "{{ consul_tokens | combine ({ item.name : token }) }}"

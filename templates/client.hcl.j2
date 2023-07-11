@@ -1,0 +1,15 @@
+advertise_addr = "{{ ansible_default_ipv4.address }}"
+ 
+bind_addr = "0.0.0.0"
+
+{% if consul_agent_token != "" %}
+acl {
+  tokens {
+    agent  = "{{ consul_agent_token }}"
+  }
+}
+{% endif %}
+
+auto_encrypt {
+  tls = true
+}

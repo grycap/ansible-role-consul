@@ -1,13 +1,73 @@
 ---
-- name: Run Consul container
-  docker_container:
+- name: Install Consul
+  include_tasks: install.yml
+
+- name: Create Consul TLS directory
+  file:
+    path: "{{ consul_config_dir }}/certs"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+    state: directory
+
+- name: Generate TLS files
+  include_tasks: tls_gen.yml
+  when: ansible_connection == 'local'
+
+- name: Copy TLS files
+  include_tasks: tls_copy.yml
+
+- name: Get/Gen Consul encryption key
+  include_tasks: encrypt_key.yml
+
+- name: Configure Consul
+  include_tasks: config.yml
+
+- name: Start Consul in the servers
+  service:
     name: consul
-    image: "{{ consul_container_image }}"
     state: started
-    detach: True
-    restart_policy: always
-    network_mode: bridge
-    published_ports:
-     - "{{ consul_interface_ip }}:{{ consul_outport }}:8500"
-    hostname: "{{ ansible_hostname }}"
-    command: "{{ consul_container_command }}"
+    enabled: yes
+  when: consul_server
+
+- name: Get/Gen Bootstrap token
+  include_tasks: acl.yml
+
+- name: Create Consul Policies and Tokens
+  include_tasks: policies.yml
+  loop: "{{ consul_basic_policies + consul_policies }}"
+
+- name: Set Agent token
+  set_fact:
+    consul_agent_token: "{{ consul_tokens['node-policy'] }}"
+
+- name: Create Client Consul configuration file
+  template:
+    src: client.hcl.j2
+    dest: "{{ consul_config_dir }}/client.hcl"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0644
+  notify: restart consul
+  when: not consul_server
+
+- name: Re-create Server Consul configuration file to add ACL token
+  template:
+    src: server.hcl.j2
+    dest: "{{ consul_config_dir }}/server.hcl"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0644
+  notify: restart consul
+  when: consul_server
+
+- name: Start Consul in the agents
+  service:
+    name: consul
+    state: started
+    enabled: yes
+  when: not consul_server
+
+- name: Configure Consul DNS
+  include_tasks: dns.yml
+  when: consul_dns

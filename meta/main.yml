@@ -1,16 +1,16 @@
 galaxy_info:
-  author: alpegon3@upv.es
-  description: Deploy Consul
-  company: GRyCAP UPV
+  namespace: micafer
+  role_name: consul
+  author: micafer1@upv.es
+  description: Install and configure Hashicorp Consul
+  company: GRyCAP
   license: Apache
   min_ansible_version: 2.2
   platforms:
+  - name: EL
+    versions:
+    - 8
   - name: Ubuntu
     versions:
-    - trusty
-    - xenial
-  galaxy_tags:
-   - consul
-
-dependencies:
-  - { role: 'grycap.docker' }
+    - bionic
+    - jammy
