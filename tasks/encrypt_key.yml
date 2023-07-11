@@ -12,7 +12,6 @@
     when: encrypt_key is not defined
 
   when: ansible_connection == 'local'
-  delegate_to: localhost
 
 - name: Wait encryption key to be generated
   wait_for:

@@ -16,7 +16,6 @@
     notify: restart systemd-resolved
 
   when: ansible_connection == 'local'
-  delegate_to: localhost
 
 - name: Rewrite default token
   command: consul acl set-agent-token default {{ consul_tokens['dns-request-policy'] }}

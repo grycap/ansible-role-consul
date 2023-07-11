@@ -40,7 +40,6 @@
       msg: "{{ CONSUL_HTTP_TOKEN }}"
 
   when: ansible_connection == 'local'
-  delegate_to: localhost
 
 
 - name: Wait Bootstrap to be generated
