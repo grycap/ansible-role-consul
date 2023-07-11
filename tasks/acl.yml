@@ -8,10 +8,6 @@
       mode: 0755
       state: directory
 
-  - name: Wait for Consul to start
-    wait_for:
-      port: 8500
-
   # Repeat until the error "500 (No cluster leader)" is gone
   - name: Gen ACL Bootstrap
     command: consul acl bootstrap
