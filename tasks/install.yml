@@ -40,6 +40,14 @@
     mode: 0755
     state: directory
 
+- name: Create Consul data directory
+  file:
+    path: "{{ consul_data_dir }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    mode: 0755
+    state: directory
+
 - name: Create consul.service configuration
   template:
     src: consul.service.j2
