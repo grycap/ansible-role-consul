@@ -60,7 +60,6 @@ To configure the set of servers (recommended 1, 3 or 5):
     - role: 'consul'
       consul_server: true
       consul_join_ips: "{{ server_list }}"
-      consul_bootstrap_expect: "{{ server_list | length }}"
 
 ```
 
@@ -74,7 +73,6 @@ To the agents:
     - role: 'consul'
       consul_server: false
       consul_join_ips: "{{ server_list }}"
-      consul_bootstrap_expect: "{{ server_list | length }}"
 
 ```
 
