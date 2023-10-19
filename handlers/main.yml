@@ -14,4 +14,3 @@
   service:
     name: systemd-resolved
     state: restarted
-  delegate_to: localhost
