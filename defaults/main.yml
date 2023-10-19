@@ -64,3 +64,5 @@ consul_basic_policies:
         policy = "read"
       }
 consul_policies: []
+# Version of CNI plugins to install, set empty to disable
+cni_plugins_version: "1.3.0"
