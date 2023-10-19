@@ -1,5 +1,13 @@
 advertise_addr = "{{ ansible_default_ipv4.address }}"
- 
+
+addresses {
+  grpc = "127.0.0.1"
+}
+
+ports {
+  grpc  = 8502
+}
+
 bind_addr = "0.0.0.0"
 
 {% if consul_agent_token != "" %}
