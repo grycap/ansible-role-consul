@@ -1,21 +1,17 @@
-- block:
+- name: Create resolved conf directory
+  file:
+    path: /etc/systemd/resolved.conf.d/
+    state: directory
 
-  - name: Create resolved conf directory
-    file:
-      path: /etc/systemd/resolved.conf.d/
-      state: directory
-
-  - name: Configure systemd-resolved DNS
-    copy:
-      content: |
-        [Resolve]
-        DNS={{ nomad_server_list[0] }}:8600
-        DNSSEC=false
-        Domains=~consul
-      dest: /etc/systemd/resolved.conf.d/consul.conf
-    notify: restart systemd-resolved
-
-  when: ansible_connection == 'local'
+- name: Configure systemd-resolved DNS
+  copy:
+    content: |
+      [Resolve]
+      DNS={{ nomad_server_list[0] }}:8600
+      DNSSEC=false
+      Domains=~consul
+    dest: /etc/systemd/resolved.conf.d/consul.conf
+  notify: restart systemd-resolved
 
 - name: Rewrite default token
   command: consul acl set-agent-token default {{ consul_tokens['dns-request-policy'] }}
