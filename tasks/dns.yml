@@ -13,9 +13,19 @@
     dest: /etc/systemd/resolved.conf.d/consul.conf
   notify: restart systemd-resolved
 
+- name: set CONSUL_HTTP_ADDR for client
+  set_fact:
+    consul_http_addr: "http://127.0.0.1:8500"
+  when: not consul_server
+
+- name: set CONSUL_HTTP_ADDR for server
+  set_fact:
+    consul_http_addr: "https://127.0.0.1:8501"
+  when: consul_server
+
 - name: Rewrite default token
   command: consul acl set-agent-token default {{ consul_tokens['dns-request-policy'] }}
   environment: 
     CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
-    CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
+    CONSUL_HTTP_ADDR: "{{ consul_http_addr }}"
     CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
