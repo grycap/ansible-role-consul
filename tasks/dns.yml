@@ -9,7 +9,7 @@
     copy:
       content: |
         [Resolve]
-        DNS={{ consul_advertise_addr }}:8600
+        DNS={{ nomad_server_list[0] }}:8600
         DNSSEC=false
         Domains=~consul
       dest: /etc/systemd/resolved.conf.d/consul.conf
