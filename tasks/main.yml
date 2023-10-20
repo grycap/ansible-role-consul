@@ -17,13 +17,22 @@
 - name: Copy TLS files
   include_tasks: tls_copy.yml
 
-- name: Set NOMAD_CACERT environment variable
+- name: Set CONSUL_CACERT environment variable
   lineinfile:
     dest: /etc/environment
-    line: "{{ item }}"
-  loop:
-    - "CONSUL_CACERT={{ consul_config_dir }}/certs/consul-agent-ca.pem"
-    - "CONSUL_HTTP_ADDR=https://127.0.0.1:8501"
+    line: "CONSUL_CACERT={{ consul_config_dir }}/certs/consul-agent-ca.pem"
+
+- name: Set CONSUL_HTTP_ADDR environment variable on agent
+  lineinfile:
+    dest: /etc/environment
+    line: "CONSUL_HTTP_ADDR=http://127.0.0.1:8500"
+  when: not consul_server
+
+- name: Set CONSUL_HTTP_ADDR environment variable on server 
+  lineinfile:
+    dest: /etc/environment
+    line: "CONSUL_HTTP_ADDR=https://127.0.0.1:8501"
+  when: consul_server
 
 - name: Get/Gen Consul encryption key
   include_tasks: encrypt_key.yml
@@ -40,6 +49,11 @@
 
 - name: Get/Gen Bootstrap token
   include_tasks: acl.yml
+
+- name: Set CONSUL_HTTP_TOKEN environment variable
+  lineinfile:
+    dest: /etc/environment
+    line: "CONSUL_HTTP_TOKEN={{ CONSUL_HTTP_TOKEN }}"
 
 - name: Create Consul Policies and Tokens
   include_tasks: policies.yml
