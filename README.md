@@ -9,9 +9,7 @@ Role Variables
 The variables that can be passed to this role and a brief description about them are as follows.
 
 	# Consul version to install
-	consul_version: 114.3
-	# Consul Web UI version to install
-	consul_webui_version: 1.14.3
+	consul_version: 1.14.3
 	# Flag to set if consul will work as server
 	consul_server: true
 	# Flag to set if consul will install the web ui

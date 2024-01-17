@@ -1,8 +1,6 @@
 ---
 # Consul version to install
 consul_version: 1.14.3
-# Consul Web UI version to install
-consul_webui_version: 1.14.3
 # Flag to set if consul will work as server
 consul_server: true
 # Flag to set if consul will install the web ui
