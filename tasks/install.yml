@@ -20,17 +20,38 @@
     name: unzip
     state: present
 
+- name: Create download directory
+  file:
+    path: "{{ consul_download_dir }}/{{ consul_version }}"
+    state: directory
+    recurse: yes
+
 - name: Download Consul
   get_url:
     url: "{{ consul_url }}"
-    dest: "{{ consul_download_dir }}/consul.zip"
+    dest: "{{ consul_download_dir }}/{{ consul_version }}/consul.zip"
 
 - name: Unarchive consul zip
   unarchive:
-    src: "{{ consul_download_dir }}/consul.zip"
-    creates: "{{ consul_install_dir }}/consul"
-    dest: "{{ consul_install_dir }}"
+    src: "{{ consul_download_dir }}/{{ consul_version }}/consul.zip"
+    creates: "{{ consul_download_dir }}/{{ consul_version }}/consul"
+    dest: "{{ consul_download_dir }}/{{ consul_version }}"
     remote_src: yes
+
+- name: Copy Consul binary
+  copy:
+    src: "{{ consul_download_dir }}/{{ consul_version }}/consul"
+    dest: "{{ consul_install_dir }}/consul_{{ consul_version }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create Consul symlink
+  file:
+    src: "{{ consul_install_dir }}/consul_{{ consul_version }}"
+    dest: "{{ consul_install_dir }}/consul"
+    state: link
+    force: yes
 
 - name: Create Consul configuration directory
   file:
