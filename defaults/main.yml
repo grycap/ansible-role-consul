@@ -26,7 +26,7 @@ consul_download_dir: /tmp
 # Path to install consul binaries
 consul_install_dir: /usr/bin
 # Path to install consul config
-consul_config_dir: /var/lib/consul/conf
+consul_config_dir: /etc/consul
 # Path to install consul data
 consul_data_dir: /var/lib/consul
 # Consul user
@@ -35,6 +35,11 @@ consul_user: consul
 consul_group: consul
 # Consul service name
 consul_service_name: consul
+# Boolean value to identify to consul master
+# Default value is True if ansible_connection is local (IM usecase)
+consul_master: "{% if (ansible_connection == 'local') %}True{% else %}False{% endif %}"
+# Consul fetch dir at ansible host
+consul_fetch_dir: /opt/consul
 consul_tokens: []
 consul_basic_policies:
   - name: node-policy

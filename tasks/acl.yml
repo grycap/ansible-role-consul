@@ -5,7 +5,7 @@
       path: "{{ consul_config_dir }}/policies"
       owner: "{{ consul_user }}"
       group: "{{ consul_group }}"
-      mode: 0755
+      mode: 0700
       state: directory
 
   # Repeat until the error "500 (No cluster leader)" is gone
@@ -16,7 +16,6 @@
     environment:
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
       CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
-    run_once: true
     register: acl_bootstrap
     until: acl_bootstrap is success
     retries: 24
@@ -27,28 +26,32 @@
       content: "{{ acl_bootstrap.stdout }}"
       dest: "{{ consul_config_dir }}/policies/acl_bootstrap"
       force: false
+      owner: "{{ consul_user }}"
+      group: "{{ consul_group }}"
+      mode: 0644
+    when: acl_bootstrap is success
 
-  - name: Get ACL Bootstrap Token
-    set_fact:
-      CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1')| first }}"
-    vars:
-      regexp: 'SecretID:\s+(.*)'
+  - name: Fetch Consul Bootstrap Token file in ansible-master
+    fetch:
+      src: "{{ consul_config_dir }}/policies/acl_bootstrap"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
 
-  - name: consul_secret_id
-    debug:
-      msg: "{{ CONSUL_HTTP_TOKEN }}"
-
-  when: ansible_connection == 'local'
-
+  when: consul_master
 
 - name: Wait Bootstrap to be generated
   wait_for:
-    path: "{{ consul_config_dir }}/policies/acl_bootstrap"
+    path: "{{ consul_fetch_dir }}/certs/acl_bootstrap"
   delegate_to: localhost
 
 - name: Get Bootstrap Token
   set_fact:
-    CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
+    CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_fetch_dir + '/certs/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
   vars:
     regexp: 'SecretID:\s+(.*)'
   delegate_to: localhost
+
+- name: consul_secret_id
+  debug:
+    msg: "{{ CONSUL_HTTP_TOKEN }}"
+  

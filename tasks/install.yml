@@ -45,6 +45,7 @@
     owner: root
     group: root
     mode: 0755
+    remote_src: yes
 
 - name: Create Consul symlink
   file:
@@ -89,6 +90,7 @@
     unarchive:
       src: https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-linux-amd64-v{{ cni_plugins_version }}.tgz
       dest: /opt/cni/bin
+      creates: /opt/cni/bin/portmap
       remote_src: yes
 
   when: cni_plugins_version != ""

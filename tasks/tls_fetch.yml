@@ -1,0 +1,32 @@
+---
+- name: Fetch TLS certs 
+  block:
+
+  - name: Create Consul TLS directory
+    file:
+      path: "{{ consul_fetch_dir }}/certs"
+      state: directory
+      owner: "{{ lookup('env', 'USER') }}"
+      mode: 0755
+    delegate_to: localhost
+
+  - name: "Fetch CA cert from consul-master to ansible-master"
+    fetch:
+      src: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
+
+  - name: "Fetch server certs from consul-master to ansible-master"
+    fetch:
+      src: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ item }}.pem"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
+    loop: "{{ range(0, consul_join_ips | length)|list }}"
+
+  - name: "Fetch server keys from consul-master to ansible-master"
+    fetch:
+      src: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ item }}-key.pem"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
+    loop: "{{ range(0, consul_join_ips | length)|list }}"
+
