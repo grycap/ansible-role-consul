@@ -7,7 +7,7 @@
       path: "{{ consul_fetch_dir }}/certs"
       state: directory
       owner: "{{ lookup('env', 'USER') }}"
-      mode: 0700
+      mode: 0755
     delegate_to: localhost
 
   - name: "Fetch CA cert from consul-master to ansible-master"

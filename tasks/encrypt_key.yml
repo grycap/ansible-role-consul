@@ -6,6 +6,7 @@
     shell: consul keygen > {{ consul_config_dir }}/encrypt.key
     args:
       creates: "{{ consul_config_dir }}/encrypt.key"
+    become_user: "{{ consul_user }}"
 
   - name: "Fetch Consul encryption key from consul-master to ansible-master"
     fetch:

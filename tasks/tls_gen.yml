@@ -7,6 +7,7 @@
     args:
       chdir: "{{ consul_config_dir }}/certs"
       creates: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
+    become_user: "{{ consul_user }}"
 
   - name: Create Consul TLS Server Cert
     command: consul tls cert create -server -dc {{ consul_dc_name }} -domain {{ consul_domain }} 
@@ -14,10 +15,4 @@
       chdir: "{{ consul_config_dir }}/certs"
       creates: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ item }}.pem"
     loop: "{{ range(0, consul_join_ips | length)|list }}"
-
-  - name: Set correct file permissions
-    file:
-      path: "{{ consul_config_dir }}/certs/{{ consul_dc_name }}-server-{{ consul_domain }}-{{ item }}-key.pem"
-      state: file
-      mode: 0644
-    loop: "{{ range(0, consul_join_ips | length)|list }}"
+    become_user: "{{ consul_user }}"

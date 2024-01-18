@@ -13,12 +13,14 @@
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
       CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
     register: policy_create
+    become_user: "{{ consul_user }}"
     changed_when: policy_create.rc == 0
 
   - name: Create Consul {{ item.name }} Token
     command: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}"
     args:
       creates: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+    become_user: "{{ consul_user }}"
     environment: 
       CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
@@ -30,6 +32,8 @@
       content: "{{ policy_token.stdout }}"
       dest: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
       force: false
+      owner: "{{ consul_user }}"
+      group: "{{ consul_group }}"
     when: policy_token is success
 
   - name: Fetch Consul {{ item.name }} Token in the ansible-master
