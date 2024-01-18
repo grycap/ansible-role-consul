@@ -38,7 +38,14 @@
     debug:
       msg: "{{ CONSUL_HTTP_TOKEN }}"
 
-  when: ansible_connection == 'local'
+  - name: Create Consul Bootstrap Token file in ansible-master
+    copy:
+      content: "{{ acl_bootstrap.stdout }}"
+      dest: "{{ consul_config_dir }}/policies/acl_bootstrap"
+      force: false
+    delegate_to: localhost
+
+  when: consul_master
 
 
 - name: Wait Bootstrap to be generated

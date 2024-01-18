@@ -21,5 +21,3 @@
       state: file
       mode: 0644
     loop: "{{ range(0, consul_join_ips | length)|list }}"
-
-  delegate_to: localhost

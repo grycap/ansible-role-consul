@@ -22,7 +22,7 @@
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
       CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
 
-  when: ansible_connection == 'local'
+  when: consul_master
 
 
 - name: Wait {{ item.name }} token to be generated

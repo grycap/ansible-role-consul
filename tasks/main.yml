@@ -12,7 +12,11 @@
 
 - name: Generate TLS files
   include_tasks: tls_gen.yml
-  when: ansible_connection == 'local'
+  when: consul_master
+
+- name: Fetch TLS files to ansible-master
+  include_tasks: tls_fetch.yml
+  when: consul_master
 
 - name: Copy TLS files
   include_tasks: tls_copy.yml
