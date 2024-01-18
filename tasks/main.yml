@@ -74,6 +74,7 @@
     owner: "{{ consul_user }}"
     group: "{{ consul_group }}"
     mode: 0644
+    force: false
   notify: restart consul
   when: not consul_server
 

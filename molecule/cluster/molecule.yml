@@ -1,15 +1,6 @@
 ---
 scenario:
   name: cluster
-  test_sequence:
-    - dependency
-    - destroy
-    - create
-    - prepare
-    - converge
-    - idempotence
-    - verify
-    - destroy
 dependency:
   name: galaxy
 driver:
@@ -67,11 +58,14 @@ provisioner:
   playbooks:
     converge: ${MOLECULE_PLAYBOOK:-converge.yml}
   inventory:
+    host_vars:
+      server0:
+        consul_master: true
     group_vars:
       front:
         consul_server: true
         consul_bootstrap_expect: 2
-        consul_master: true
+        consul_master: false
       wn:
         consul_server: false
         consul_master: false

@@ -12,27 +12,45 @@
       CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
       CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
+    register: policy_create
+    changed_when: policy_create.rc == 0
 
   - name: Create Consul {{ item.name }} Token
-    shell: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}" > "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+    command: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}"
     args:
       creates: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
     environment: 
       CONSUL_HTTP_TOKEN: "{{ CONSUL_HTTP_TOKEN }}"
       CONSUL_CACERT: "{{ consul_config_dir }}/certs/consul-agent-ca.pem"
       CONSUL_HTTP_ADDR: "https://127.0.0.1:8501"
+    register: policy_token
+
+  - name: Write Consul {{ item.name }} Token
+    copy:
+      content: "{{ policy_token.stdout }}"
+      dest: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+      force: false
+    when: policy_token is success
+
+  - name: Write Consul {{ item.name }} Token in the ansible-master
+    copy:
+      content: "{{ policy_token.stdout }}"
+      dest: "{{ consul_fetch_dir }}/certs/{{ item.name }}.token"
+      force: false
+    delegate_to: localhost
+    when: policy_token is success
 
   when: consul_master
 
 
 - name: Wait {{ item.name }} token to be generated
   wait_for:
-    path: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+    path: "{{ consul_fetch_dir }}/certs/{{ item.name }}.token"
   delegate_to: localhost
 
 - name: Get ACL {{ item.name }} Token
   set_fact:
-    token: "{{ lookup('file', consul_config_dir + '/policies/{{ item.name }}.token')| regex_search(regexp,'\\1') | first }}"
+    token: "{{ lookup('file', consul_fetch_dir + '/certs/{{ item.name }}.token')| regex_search(regexp,'\\1') | first }}"
   vars:
     regexp: 'SecretID:\s+(.*)'
   delegate_to: localhost

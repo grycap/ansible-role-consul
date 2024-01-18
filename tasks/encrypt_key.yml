@@ -2,28 +2,24 @@
 - name: Check and Generate Consul encryption key
   block:
 
-  - name: Try to get existing Consul encryption key
-    set_fact:
-      encrypt_key: "{{lookup('file', consul_config_dir + '/encrypt.key') }}"
-    ignore_errors: true
-
   - name: Generate Consul encryption key
     shell: consul keygen > {{ consul_config_dir }}/encrypt.key
-    when: encrypt_key is not defined
+    args:
+      creates: "{{ consul_config_dir }}/encrypt.key"
 
   - name: "Fetch Consul encryption key from consul-master to ansible-master"
     fetch:
       src: "{{ consul_config_dir }}/encrypt.key"
-      dest: "{{ consul_fetch_dir }}"
+      dest: "{{ consul_fetch_dir }}/certs/"
       flat: yes
 
   when: consul_master
 
 - name: Wait encryption key to be generated
   wait_for:
-    path: "{{ consul_fetch_dir }}/encrypt.key"
+    path: "{{ consul_fetch_dir }}/certs/encrypt.key"
   delegate_to: localhost
 
 - set_fact:
-    encrypt_key: "{{lookup('file', consul_config_dir + '/encrypt.key') }}"
+    consul_encrypt_key: "{{lookup('file', consul_fetch_dir + '/certs/encrypt.key') }}"
   delegate_to: localhost

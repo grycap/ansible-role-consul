@@ -27,35 +27,31 @@
       content: "{{ acl_bootstrap.stdout }}"
       dest: "{{ consul_config_dir }}/policies/acl_bootstrap"
       force: false
-
-  - name: Get ACL Bootstrap Token
-    set_fact:
-      CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1')| first }}"
-    vars:
-      regexp: 'SecretID:\s+(.*)'
-
-  - name: consul_secret_id
-    debug:
-      msg: "{{ CONSUL_HTTP_TOKEN }}"
+    when: acl_bootstrap is success
 
   - name: Create Consul Bootstrap Token file in ansible-master
     copy:
       content: "{{ acl_bootstrap.stdout }}"
-      dest: "{{ consul_config_dir }}/policies/acl_bootstrap"
+      dest: "{{ consul_fetch_dir }}/certs/acl_bootstrap"
       force: false
     delegate_to: localhost
+    when: acl_bootstrap is success
 
   when: consul_master
 
-
 - name: Wait Bootstrap to be generated
   wait_for:
-    path: "{{ consul_config_dir }}/policies/acl_bootstrap"
+    path: "{{ consul_fetch_dir }}/certs/acl_bootstrap"
   delegate_to: localhost
 
 - name: Get Bootstrap Token
   set_fact:
-    CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_config_dir + '/policies/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
+    CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_fetch_dir + '/certs/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
   vars:
     regexp: 'SecretID:\s+(.*)'
   delegate_to: localhost
+
+- name: consul_secret_id
+  debug:
+    msg: "{{ CONSUL_HTTP_TOKEN }}"
+  
