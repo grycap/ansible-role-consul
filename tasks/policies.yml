@@ -32,16 +32,13 @@
       force: false
     when: policy_token is success
 
-  - name: Write Consul {{ item.name }} Token in the ansible-master
-    copy:
-      content: "{{ policy_token.stdout }}"
-      dest: "{{ consul_fetch_dir }}/certs/{{ item.name }}.token"
-      force: false
-    delegate_to: localhost
-    when: policy_token is success
+  - name: Fetch Consul {{ item.name }} Token in the ansible-master
+    fetch:
+      src: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
 
   when: consul_master
-
 
 - name: Wait {{ item.name }} token to be generated
   wait_for:
