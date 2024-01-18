@@ -29,13 +29,11 @@
       force: false
     when: acl_bootstrap is success
 
-  - name: Create Consul Bootstrap Token file in ansible-master
-    copy:
-      content: "{{ acl_bootstrap.stdout }}"
-      dest: "{{ consul_fetch_dir }}/certs/acl_bootstrap"
-      force: false
-    delegate_to: localhost
-    when: acl_bootstrap is success
+  - name: Fetch Consul Bootstrap Token file in ansible-master
+    fetch:
+      src: "{{ consul_config_dir }}/policies/acl_bootstrap"
+      dest: "{{ consul_fetch_dir }}/certs/"
+      flat: yes
 
   when: consul_master
 
