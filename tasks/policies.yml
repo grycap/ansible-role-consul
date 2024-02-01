@@ -16,8 +16,17 @@
     become_user: "{{ consul_user }}"
     changed_when: policy_create.rc == 0
 
+  - name: set consul token create command
+    set_fact:
+      consul_token_create_command: 'consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}"'
+
+  - name: add node identity to consul token create command
+    set_fact:
+      consul_token_create_command: "{{ consul_token_create_command }} -node-identity {{ item.node }}"
+    when: item.node is defined
+
   - name: Create Consul {{ item.name }} Token
-    command: consul acl token create -policy-name {{ item.name }} -description "{{ item.description | default(item.name) }}"
+    command: "{{ consul_token_create_command }}"
     args:
       creates: "{{ consul_config_dir }}/policies/{{ item.name }}.token"
     become_user: "{{ consul_user }}"
