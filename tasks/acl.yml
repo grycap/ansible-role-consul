@@ -49,7 +49,6 @@
     CONSUL_HTTP_TOKEN: "{{ lookup('file', consul_fetch_dir + '/certs/acl_bootstrap')| regex_search(regexp,'\\1') | first }}"
   vars:
     regexp: 'SecretID:\s+(.*)'
-  delegate_to: localhost
 
 - name: consul_secret_id
   debug:
