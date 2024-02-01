@@ -23,7 +23,7 @@
   - name: add node identity to consul token create command
     set_fact:
       consul_token_create_command: "{{ consul_token_create_command }} -node-identity {{ item.node }}"
-    when: item.node is defined and item.node is not ''
+    when: item.node is defined
 
   - name: Create Consul {{ item.name }} Token
     command: "{{ consul_token_create_command }}"
